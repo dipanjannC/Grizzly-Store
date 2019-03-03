@@ -31,28 +31,26 @@ alter table product_details auto_increment=10001;
 select * from product_details;
 
 insert into product_details(product_name ,product_brand,product_category,product_rating,
-							product_stock,
 							product_price) values ('all stars',
-                            'addidas','footware',5.0,40,7500);
+                            'addidas','footware',5.0,7500);
 insert into product_details(product_name ,product_brand,product_category,product_rating,
-							product_stock,
 							product_price) values ('Polo',
-                            'levis','tshirt',4.7,200,1500);
+                            'levis','tshirt',4.7,1500);
 update user_details set user_status='active' where user_name='dipanjan';
 update user_details set user_status='active' where user_status='inactive';
 
 
 create table inventory(product_id int  ,inventory_buffer int default 0,inventory_stock int default 0,foreign key(product_id) references product_details(product_id));
 
+select * from inventory;
+insert into inventory(product_id,
+						inventory_buffer,
+						inventory_stock) values (10001,75,200);
+
 
 insert into inventory(product_id,
 						inventory_buffer,
-						inventory_stock) values (10002,75,200);
-
-
-insert into inventory(product_id,
-						inventory_buffer,
-						inventory_stock) values (10003,200,1000);
+						inventory_stock) values (10002,200,1000);
 
 
 insert into inventory(product_id,
@@ -60,3 +58,13 @@ insert into inventory(product_id,
 						inventory_stock) values (10004,100,150);
 
 select * from inventory;
+
+select product_details.product_id,
+	   product_details.product_name,
+		product_details.product_brand,
+        product_details.product_category,
+        product_details.product_rating,
+        product_details.product_price,
+		inventory.inventory_stock,
+        inventory.inventory_buffer from inventory 
+        join product_details on product_details.product_id=inventory.product_id;
