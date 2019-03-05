@@ -2,7 +2,6 @@ package com.grizzly.pojo;
 
 public class LoginPojo {
 
-	private int userId;
 	private String username;
 	private String password;
 	private String	role;

@@ -100,14 +100,8 @@ input[type=text]:focus, input[type=password]:focus {
     String msg=(String)request.getAttribute("error");
     if(msg!=null)
     	out.println(msg);
-		
-    %></p>
-    <input type="text" placeholder="Enter Username" name="username" required>
-    <input type="password" placeholder="Enter Password" name="password" required>
-    
-    
-    <hr>
-	<button type="submit" class="btn">Login</button>
+		session.invalidate();
+    %>
 
   </form>
   

@@ -12,11 +12,12 @@ import javax.servlet.http.HttpSession;
 
 import com.grizzly.dao.LoginDao;
 import com.grizzly.pojo.LoginPojo;
+import com.grizzly.validation.WebsiteException;
 
 /**
  * Servlet implementation class Login
  */
-@WebServlet("/Login")
+@WebServlet("/LoginLogout")
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -24,193 +25,205 @@ public class LoginServlet extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
-		String user = request.getParameter("username");
-		String password = request.getParameter("password");
-		
-
-		LoginPojo pojo = new LoginPojo();
-		pojo.setUsername(user);
-
-		pojo = LoginDao.loginValidation(pojo);
-		
-
-		if(pojo.getStatus()==null)
-		{
+		if (request.getParameter("logout-option") != null && request.getParameter("logout-option").equals("Yes")) {
+			HttpSession session = request.getSession(false);
+			session.invalidate();
 			RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-			request.setAttribute("error", "Incorrect Username/Password.");
 			requestDispatcher.forward(request, response);
-		}
-		
-		if(pojo.getRole().equals("vendor")){
-			
-			if (pojo.getStatus().equals("active")) {
-				
-				if (pojo.getPassword().equals(password)) {
+		} else {
 
-					// Staring User-Session
-					HttpSession session = request.getSession();
-					session.setAttribute("username", user);
+			String user = request.getParameter("username");
+			String password = request.getParameter("password");
 
-					
-					// Requesting the Dispatcher
+			LoginPojo pojo = new LoginPojo();
+			pojo.setUsername(user);
 
-					RequestDispatcher requestDispatcher = request.getRequestDispatcher("FetchServlet");
-					session.removeAttribute("attempts");
+			try {
+				pojo = LoginDao.loginValidation(pojo);
+				if (pojo.getRole() == null) {
+					RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+					request.setAttribute("error", "Incorrect Username/Password.");
 					requestDispatcher.forward(request, response);
-
 				} else {
-					// only if password doesn't match
-					HttpSession session = request.getSession();
-					String username = (String) session.getAttribute("username");
-
 					
 
-					if (request.getParameter("username").equals(username)) {
+					if (pojo.getRole().equals("vendor")) {
 
-						String attempts = (String) session.getAttribute("attempts");
-					
+						if (pojo.getStatus().equals("active")) {
 
-						if (attempts == null) {
-							// sessionsetMaxInactiveInterval(20*60);
-							session.setAttribute("username", user);
-							session.setAttribute("attempts", "1");
-							RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-							request.setAttribute("error", "Invalid Password! Please try again vendor.");
-							requestDispatcher.forward(request, response);
+							if (pojo.getPassword().equals(password)) {
 
-						} else if (attempts.equals("1")) {
+								// Staring User-Session
+								HttpSession session = request.getSession();
+								session.setAttribute("username", user);
+								session.setAttribute("role", pojo.getRole());
 
-							int attemptInteger = Integer.parseInt(attempts);
+								// Requesting the Dispatcher
+								RequestDispatcher requestDispatcher = request.getRequestDispatcher("FetchServlet");
+								session.removeAttribute("attempts");
+								requestDispatcher.forward(request, response);
 
-							// changing Integer attempts to String attempts
-							session.setAttribute("attempts", (++attemptInteger) + "");
+							} else {
+								// only if password doesn't match
+								HttpSession session = request.getSession();
+								String username = (String) session.getAttribute("username");
 
-							RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-							request.setAttribute("error", "Invalid Password! Please try again vendor.");
-							requestDispatcher.forward(request, response);
+								if (request.getParameter("username").equals(username)) {
+
+									String attempts = (String) session.getAttribute("attempts");
+
+									if (attempts == null) {
+										// sessionsetMaxInactiveInterval(20*60);
+										session.setAttribute("username", user);
+										session.setAttribute("attempts", "1");
+										
+										RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+										request.setAttribute("error", "Invalid Password! Please try again vendor.");
+										requestDispatcher.forward(request, response);
+
+									} else if (attempts.equals("1")) {
+
+										int attemptInteger = Integer.parseInt(attempts);
+
+										// changing Integer attempts to String attempts
+										session.setAttribute("attempts", (++attemptInteger) + "");
+
+										RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+										request.setAttribute("error", "Invalid Password! Please try again vendor.");
+										requestDispatcher.forward(request, response);
+
+									} else {
+
+										session.invalidate();
+										LoginDao.lockAccount(user);
+										
+										RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+										request.setAttribute("error"," You have entered wrong password more than 3 times. Account is Locked vendor!!");
+										requestDispatcher.forward(request, response);
+
+									}
+
+								} else {
+
+									// sessionsetMaxInactiveInterval(20*60);
+									session.setAttribute("username", user);
+									session.setAttribute("attempts", "1");
+									
+									RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+									request.setAttribute("error", "Invalid Password! Please try again. 1 vendor");
+									requestDispatcher.forward(request, response);
+								}
+
+							}
 
 						} else {
 
-							session.invalidate();
-							LoginDao.lockAccount(user);
 							RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-							request.setAttribute("error", " You have entered wrong password more than 3 times. Account is Locked vendor!!");
+							request.setAttribute("error", "Account Is Inactive vendor!!");
 							requestDispatcher.forward(request, response);
 
 						}
 
-					} else {
+					} else if (pojo.getRole().equals("admin")) {
 
-						// sessionsetMaxInactiveInterval(20*60);
-						
-						session.setAttribute("username", user);
-						session.setAttribute("attempts", "1");
-						RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-						request.setAttribute("error", "Invalid Password! Please try again. 1 vendor");
-						requestDispatcher.forward(request, response);
+						if (pojo.getStatus().equals("active")) {
+
+							if (pojo.getPassword().equals(password)) {
+
+								// Staring User-Session
+								HttpSession session = request.getSession();
+								session.setAttribute("username", user);
+								session.setAttribute("role", pojo.getRole());
+
+								// Requesting the Dispatcher
+								RequestDispatcher requestDispatcher = request.getRequestDispatcher("FetchServlet");
+								session.removeAttribute("attempts");
+								requestDispatcher.forward(request, response);
+
+							} else {
+								// only if password doesn't match
+								HttpSession session = request.getSession();
+								String username = (String) session.getAttribute("username");
+
+								if (request.getParameter("username").equals(username)) {
+
+									String attempts = (String) session.getAttribute("attempts");
+
+									if (attempts == null) {
+										// sessionsetMaxInactiveInterval(20*60);
+										session.setAttribute("username", user);
+										session.setAttribute("attempts", "1");
+									
+										RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+										request.setAttribute("error", "Invalid Password! Please try again.");
+										requestDispatcher.forward(request, response);
+
+									} else if (attempts.equals("1")) {
+
+										int attemptInteger = Integer.parseInt(attempts);
+
+										// changing Integer attempts to String attempts
+										session.setAttribute("attempts", (++attemptInteger) + "");
+
+										RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+										request.setAttribute("error", "Invalid Password! Please try again.");
+										requestDispatcher.forward(request, response);
+
+									} else {
+
+										session.invalidate();
+										LoginDao.lockAccount(user);
+										RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+										request.setAttribute("error"," You have entered wrong password more than 3 times. Account is Locked!!");
+										requestDispatcher.forward(request, response);
+
+									}
+
+								} else {
+
+									// sessionsetMaxInactiveInterval(20*60);
+
+									session.setAttribute("username", user);
+									session.setAttribute("attempts", "1");
+									
+									RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+									request.setAttribute("error", "Invalid Password! Please try again. 1");
+									requestDispatcher.forward(request, response);
+								}
+
+							}
+
+						} else {
+
+							RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
+							request.setAttribute("error", "Account Is Inactive!!");
+							requestDispatcher.forward(request, response);
+
+						}
 					}
-
-				}
-
-			} else {
-
-				RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-				request.setAttribute("error", "Account Is Inactive vendor!!");
-				requestDispatcher.forward(request, response);
-
-			}
-			
-			
-		}
-		else if(pojo.getRole().equals("admin")) {
-			
-		
-		if (pojo.getStatus().equals("active")) {
-			
-			if (pojo.getPassword().equals(password)) {
-
-				// Staring User-Session
-				HttpSession session = request.getSession();
-				session.setAttribute("username", user);
-
-				
-				// Requesting the Dispatcher
-
-				RequestDispatcher requestDispatcher = request.getRequestDispatcher("FetchServlet");
-				session.removeAttribute("attempts");
-				requestDispatcher.forward(request, response);
-
-			} else {
-				// only if password doesn't match
-				HttpSession session = request.getSession();
-				String username = (String) session.getAttribute("username");
-
-				
-
-				if (request.getParameter("username").equals(username)) {
-
-					String attempts = (String) session.getAttribute("attempts");
-				
-
-					if (attempts == null) {
-						// sessionsetMaxInactiveInterval(20*60);
-						session.setAttribute("username", user);
-						session.setAttribute("attempts", "1");
-						RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-						request.setAttribute("error", "Invalid Password! Please try again.");
-						requestDispatcher.forward(request, response);
-
-					} else if (attempts.equals("1")) {
-
-						int attemptInteger = Integer.parseInt(attempts);
-
-						// changing Integer attempts to String attempts
-						session.setAttribute("attempts", (++attemptInteger) + "");
-
-						RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-						request.setAttribute("error", "Invalid Password! Please try again.");
-						requestDispatcher.forward(request, response);
-
-					} else {
-
-						session.invalidate();
-						LoginDao.lockAccount(user);
-						RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-						request.setAttribute("error", " You have entered wrong password more than 3 times. Account is Locked!!");
-						requestDispatcher.forward(request, response);
-
-					}
-
-				} else {
-
-					// sessionsetMaxInactiveInterval(20*60);
-					
-					session.setAttribute("username", user);
-					session.setAttribute("attempts", "1");
-					RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-					request.setAttribute("error", "Invalid Password! Please try again. 1");
-					requestDispatcher.forward(request, response);
 				}
 
 			}
 
-		} else {
+			catch (WebsiteException e) {
+				// TODO Auto-generated catch block
+				
+				RequestDispatcher requestDispatcher = request.getRequestDispatcher("ErrorPage.jsp");
+				request.setAttribute("error", e.getMessage());
+				requestDispatcher.forward(request, response);
+			}
 
-			RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-			request.setAttribute("error", "Account Is Inactive!!");
-			requestDispatcher.forward(request, response);
+			// Logout Servlet
 
+			/*
+			 * String optionLogout=request.getParameter("logout-option");
+			 * 
+			 * 
+			 * if(optionLogout.equals("Yes")) { HttpSession
+			 * session=request.getSession(false); session.invalidate(); RequestDispatcher
+			 * requestDispatcher=request.getRequestDispatcher("Login.jsp");
+			 * requestDispatcher.forward(request,response); }
+			 */
 		}
 	}
-		
-	else {
-		
-		RequestDispatcher requestDispatcher = request.getRequestDispatcher("Login.jsp");
-		request.setAttribute("error", "Not a vendor/admin!!");
-		requestDispatcher.forward(request, response);
-		
-		
 	}
-	
-	}
-}

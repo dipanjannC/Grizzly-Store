@@ -1,18 +1,17 @@
 package com.grizzly.pojo;
 
-public class ProductDetailsPojo {
-
+public class InventoryDetailsPojo {
+	
 	private int productId;
+	private int inventoryBuffer;
+	private int inventoryStock;
 	private String productName;
 	private String productBrand;
 	private String productCategory;
 	private double productRating;
-	private int productBuffer;
-	private int productStock;
 	private double productPrice;
-	private String productDescription;
 	
-	//getters and setters for ProductId
+	// getters and setters for productId
 	public int getProductId() {
 		return productId;
 	}
@@ -20,7 +19,23 @@ public class ProductDetailsPojo {
 		this.productId = productId;
 	}
 	
-	//getters and setters for ProductName
+	// getters and setters for InventoryBuffer
+	public int getInventoryBuffer() {
+		return inventoryBuffer;
+	}
+	public void setInventoryBuffer(int inventoryBuffer) {
+		this.inventoryBuffer = inventoryBuffer;
+	}
+	
+	// getters and setters for InventoryStock
+	public int getInventoryStock() {
+		return inventoryStock;
+	}
+	public void setInventoryStock(int inventoryStock) {
+		this.inventoryStock = inventoryStock;
+	}
+	
+	// getters and setters for productName
 	public String getProductName() {
 		return productName;
 	}
@@ -28,7 +43,7 @@ public class ProductDetailsPojo {
 		this.productName = productName;
 	}
 	
-	//getters and setters for ProductBrand
+	// getters and setters for product brand
 	public String getProductBrand() {
 		return productBrand;
 	}
@@ -36,7 +51,7 @@ public class ProductDetailsPojo {
 		this.productBrand = productBrand;
 	}
 	
-	//getters and setters for ProductCategory
+	//getter and setter for product category
 	public String getProductCategory() {
 		return productCategory;
 	}
@@ -44,7 +59,7 @@ public class ProductDetailsPojo {
 		this.productCategory = productCategory;
 	}
 	
-	//getters and setters for ProductRating
+	// getters and setters for product rating
 	public double getProductRating() {
 		return productRating;
 	}
@@ -52,15 +67,7 @@ public class ProductDetailsPojo {
 		this.productRating = productRating;
 	}
 	
-	//getters and setters for ProductBuffer
-	public int getProductBuffer() {
-		return productBuffer;
-	}
-	public void setProductBuffer(int productBuffer) {
-		this.productBuffer = productBuffer;
-	}
-	
-	//getters and setters for ProductPrice
+	// getters and setters for product price
 	public double getProductPrice() {
 		return productPrice;
 	}
@@ -68,22 +75,7 @@ public class ProductDetailsPojo {
 		this.productPrice = productPrice;
 	}
 	
-	//getters and setters for ProductStock
-	public int getProductStock() {
-		return productStock;
-	}
-	public void setProductStock(int productStock) {
-		this.productStock = productStock;
-	}
 	
-	//getters and setters for ProductDescription
-	public String getProductDescription() {
-		return productDescription;
-	}
+	
 
-	public void setProductDescription(String productDescription) {
-		this.productDescription = productDescription;
-	}
-	
-	
 }

@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.grizzly.validation.WebsiteException;
+
 public class DBUtil {
 
 	static Connection connection;
@@ -21,7 +23,7 @@ public class DBUtil {
 	
 	}
 	//	MAKING CONNECTION
-	static Connection makeConnection()
+	static Connection makeConnection() throws WebsiteException
 	{
 		if (connection==null)
 		{
@@ -29,7 +31,7 @@ public class DBUtil {
 				connection=DriverManager.getConnection("jdbc:mysql://localhost:3306/grizzly_storeDB", "root", "root");
 			}
 			catch (SQLException e) {
-				e.printStackTrace();
+				throw new WebsiteException("Server Down. Please try after sometime");
 			}
 		}		
 		return connection;
@@ -37,13 +39,13 @@ public class DBUtil {
 	}
 	
 //	CLOSING CONNECTION
-	static void closeConnection()
+	static void closeConnection() throws WebsiteException
 	{
 		try {
 			connection.close();
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			throw new WebsiteException("Error while Closing.Please Try Again");
 		}
 	}
 
